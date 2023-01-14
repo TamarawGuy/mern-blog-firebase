@@ -1,25 +1,20 @@
 import express from "express";
-
-let articlesInfo = [
-  {
-    name: "learn-react",
-    upvotes: 0,
-    comments: [],
-  },
-  {
-    name: "learn-node",
-    upvotes: 0,
-    comments: [],
-  },
-  {
-    name: "mongodb",
-    upvotes: 0,
-    comments: [],
-  },
-];
+import { db, connectToDb } from "./db.js";
 
 const app = express();
 app.use(express.json());
+
+app.get("/api/articles/:name", async (req, res) => {
+  const { name } = req.params;
+
+  const article = await db.collection("articles").findOne({ name });
+
+  if (article) {
+    res.json(article);
+  } else {
+    res.sendStatus(404);
+  }
+});
 
 app.put("/api/articles/:name/upvote", (req, res) => {
   const { name } = req.params;
@@ -37,7 +32,7 @@ app.post("/api/articles/:name/comments", (req, res) => {
   const { name } = req.params;
   const { postedBy, text } = req.body;
 
-  const article = articleInfo.find((article) => article.name === name);
+  const article = articlesInfo.find((article) => article.name === name);
 
   if (article) {
     article.comments.push({ postedBy, text });
@@ -47,6 +42,8 @@ app.post("/api/articles/:name/comments", (req, res) => {
   }
 });
 
-app.listen(8000, () => {
-  console.log("Server is listening on port 8000");
+connectToDb(() => {
+  app.listen(8000, () => {
+    console.log("Server is listening on port 8000");
+  });
 });
