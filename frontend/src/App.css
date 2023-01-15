@@ -77,6 +77,12 @@ nav a:hover {
   color: white;
 }
 
+.nav-right {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
 /* ArticlesList Component */
 .article-list-item {
   text-decoration: none;

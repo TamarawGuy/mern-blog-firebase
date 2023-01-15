@@ -1,5 +1,5 @@
 import fs from "fs";
-import admin, { auth } from "firebase-admin";
+import admin from "firebase-admin";
 import express from "express";
 import { db, connectToDb } from "./db.js";
 
@@ -18,9 +18,11 @@ app.use(async (req, res, next) => {
     try {
       req.user = await admin.auth().verifyIdToken(authToken);
     } catch (error) {
-      res.sendStatus(400);
+      return res.sendStatus(400);
     }
   }
+
+  req.user = req.user || {};
 
   next();
 });
@@ -79,21 +81,22 @@ app.post("/api/articles/:name/comments", async (req, res) => {
   const { name } = req.params;
   const { text } = req.body;
   const { email } = req.user;
+  console.log(req.user);
 
-  await db.collection("articles").updateOne(
-    { name },
-    {
-      $push: { comments: { postedBy: email, text } },
-    }
-  );
+  // await db.collection("articles").updateOne(
+  //   { name },
+  //   {
+  //     $push: { comments: { postedBy: email, text } },
+  //   }
+  // );
 
-  const article = await db.collection("articles").findOne({ name });
+  // const article = await db.collection("articles").findOne({ name });
 
-  if (article) {
-    res.json(article);
-  } else {
-    res.send("Article does not exist");
-  }
+  // if (article) {
+  //   res.json(article);
+  // } else {
+  //   res.send("Article does not exist");
+  // }
 });
 
 connectToDb(() => {
